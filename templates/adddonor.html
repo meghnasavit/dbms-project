@@ -21,6 +21,36 @@
   <div class="card-body">
       <form action = "{{url_for('addb')}}" method = "POST">
          <h3>Donor Information</h3>
+         <label for="addr">Street Number</label>
+         <textarea name = "street_number" class="form-control" required></textarea>
+
+         <label for="addr">Street Name</label>
+         <textarea name = "street_name" class="form-control" required></textarea>
+
+         <label for="addr">Apartment Number</label>
+         <textarea name = "apt_number" class="form-control" required></textarea>
+
+          <label for="city">City</label>
+         <input type = "text" name = "city" class="form-control" required/>
+
+         <label for="city">State</label>
+         <input type = "text" name = "state" class="form-control" required/>
+
+          <label for="pin">Zipcode</label>
+         <input type = "text" name = "zipcode" class="form-control" required/>
+
+         <label for="city">Square Foootage</label>
+         <input type = "text" name = "square_footage" class="form-control" required/>
+
+         <label for="city">Number of Bedrooms</label>
+         <input type = "text" name = "num_bedrooms" class="form-control" required/>
+
+          <label for="pin">Number of Occupants</label>
+         <input type = "text" name = "num_occupants" class="form-control" required/>
+
+         <label for="pin">Move in date</label>
+         <input type = "text" name = "move_in_date" class="form-control" required/>
+
          BLOOD Group<br>
 
          <select name="blood_group" class="form-control">
