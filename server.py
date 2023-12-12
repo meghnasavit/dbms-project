@@ -132,10 +132,6 @@ def index():
         rows = cur.fetchall();
         return render_template('index.html', title='Home', user=user, rows=rows)
 
-    #messages = request.args['user']
-
-
-
 
 @app.route('/list')
 def list():
@@ -212,94 +208,28 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-   totalblood=0
    con = sqlite3.connect('database.db')
    con.row_factory = sqlite3.Row
 
    cur = con.cursor()
-   cur.execute("select * from blood")
+   cur.execute("select appliance_type, COUNT(*) from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Device_Appliance_Mapping on Service_Location_Devices.device_id = Device_Appliance_Mapping.device_id join Appliance_Information on Appliance_Information.appliance_id = Device_Appliance_Mapping.appliance_id where cid=? group by appliance_type",(session['cid'],))
+   rows3 = cur.fetchall()
 
-   rows = cur.fetchall();
-   for row in rows:
-       totalblood  += int(row['qty'])
-   
-   cur.execute("select * from users")
-   users = cur.fetchall();
+   appliance_dictionary={'Fridge':0, 'Lights':0, 'AC':0}
+   for row in rows3:
+    appliance_dictionary[row[0]]=row[1]
 
-   print(session)
-   Apositive=0
-   Opositive=0
-   Bpositive=0
-   Anegative=0
-   Onegative=0
-   Bnegative=0
-   ABpositive=0
-   ABnegative = 0
-
-   print(rows)
-   cur.execute("select * from blood where type=?",('A+',))
-   type = cur.fetchall();
-   for a in type:
-       Apositive += int(a['qty'])
-
-   cur.execute("select * from blood where type=?",('A-',))
-   type = cur.fetchall();
-   for a in type:
-       Anegative += int(a['qty'])
-
-
-   cur.execute("select * from blood where type=?",('O+',))
-   type = cur.fetchall();
-   for a in type:
-       Opositive += int(a['qty'])
-
-   cur.execute("select * from blood where type=?",('O-',))
-   type = cur.fetchall();
-   for a in type:
-       Onegative += int(a['qty'])
-
-   cur.execute("select * from blood where type=?",('B+',))
-   type = cur.fetchall();
-   for a in type:
-       Bpositive += int(a['qty'])
-
-
-   cur.execute("select * from blood where type=?",('B-',))
-   type = cur.fetchall();
-   for a in type:
-       Bnegative += int(a['qty'])
-
-
-
-   cur.execute("select * from blood where type=?",('AB+',))
-   type = cur.fetchall();
-   for a in type:
-       ABpositive += int(a['qty'])
-
-
-   cur.execute("select * from blood where type=?",('AB-',))
-   type = cur.fetchall();
-   for a in type:
-       ABnegative += int(a['qty'])
-
-
-   bloodtypestotal = {'apos': Apositive,'aneg':Anegative,'opos':Opositive,'oneg':Onegative,'bpos':Bpositive,'bneg':Bnegative,'abpos':ABpositive,'abneg':ABnegative}
+   print(appliance_dictionary)
 
    cur.execute("select * from Service_Locations join Customer_Service_Locations on Service_Locations.service_location_id=Customer_Service_Locations.service_location_id where cid=?",(session['cid'],))
 
    rows1 = cur.fetchall();
-   print("tried to fetch service locations")
 
-   cur.execute("select Service_Location_Devices.device_id, Service_Locations.street_name, Service_Locations.city, Appliance_Information.appliance_type, Appliance_Information.model from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Device_Appliance_Mapping on Service_Location_Devices.device_id = Device_Appliance_Mapping.device_id join Appliance_Information on Appliance_Information.appliance_id = Device_Appliance_Mapping.appliance_id where cid=?",(session['cid'],))
+   cur.execute("select Service_Location_Devices.device_id, Service_Locations.street_number, Service_Locations.street_name, Service_Locations.apt_number, Service_Locations.city, Service_Locations.zipcode, Appliance_Information.appliance_type, Appliance_Information.model from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Device_Appliance_Mapping on Service_Location_Devices.device_id = Device_Appliance_Mapping.device_id join Appliance_Information on Appliance_Information.appliance_id = Device_Appliance_Mapping.appliance_id where cid=?",(session['cid'],))
 
    rows2 = cur.fetchall();
-   for row in rows2:
-        print(row[0], row[1], row[2], row[3], row[4])
-   print("tried to fetch service locations")
 
-
-
-   return render_template("requestdonors.html",rows = rows,totalblood = totalblood,users=users,bloodtypestotal=bloodtypestotal,rows1=rows1, rows2=rows2)
+   return render_template("requestdonors.html",rows1=rows1, rows2=rows2, appliance_dictionary= appliance_dictionary)
 
 
 @app.route('/bloodbank')
@@ -327,6 +257,7 @@ def adddevice():
         string=''
         for x in row[1:]:
             string+=str(x)+', '
+        string=string[:-2]
         arr[row[0]]=string
 
     cur.execute("select * from Appliance_Information")
@@ -335,7 +266,8 @@ def adddevice():
     for row in rows1:
         string=''
         for x in row[1:]:
-            string+=str(x)+', '
+            string+=str(x)+': '
+        string=string[:-2]
         arr1[row[0]]=string
     conn.close()
     return render_template('/adddevice.html',rows=arr, rows1=arr1)
@@ -358,33 +290,13 @@ def addb():
             num_occupants = request.form['num_occupants']
             move_in_date = request.form['move_in_date']
 
-
-            type = request.form['blood_group']
-            donorname = request.form['donorname']
-            donorsex = request.form['gender']
-            qty = request.form['qty']
-            dweight = request.form['dweight']
-            email = request.form['email']
-            phone = request.form['phone']
-
-
-
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                print("just before insert")
                 cur.execute("INSERT INTO Service_Locations (street_number, street_name, apt_number, city,state, zipcode, square_footage, num_bedrooms, num_occupants) VALUES (?,?,?,?,?,?,?,?,?)",(street_number, street_name, apt_number, city,state, zipcode, square_footage, num_bedrooms, num_occupants) )
                 con.commit()
-                print('inserted into service location table')
                 cur.execute('select service_location_id from Service_Locations where street_number=? and street_name=? and apt_number=?',(street_number,street_name,apt_number,))
                 row = cur.fetchone()
-                print(row)
-                print(row[0])
                 cur.execute("INSERT INTO Customer_Service_Locations (cid, service_location_id, move_in_date) VALUES (?,?,?)",(session['cid'], row[0], move_in_date) )
-                print('After insert into csl table')
-                con.commit()
-
-                print('after trying to insert into customer service location tables')
-                cur.execute("INSERT INTO blood (type,donorname,donorsex,qty,dweight,donoremail,phone) VALUES (?,?,?,?,?,?,?)",(type,donorname,donorsex,qty,dweight,email,phone) )
 
                 con.commit()
                 msg = "Record successfully added"
@@ -393,7 +305,6 @@ def addb():
             msg = "error in insert operation"
 
         finally:
-            flash("added new entry!")
             return redirect(url_for('dashboard'))
             con.close()
 
@@ -408,28 +319,18 @@ def adddevicedb():
         try:
             form_data = request.form  
             for key, value in form_data.items():
-                print(f"Key: {key}, Value: {value}")
                 if key=='service_location_id':
                     service_location_id=int(value)
                 else:
                     appliance_id=int(value)
 
-            print(service_location_id)
-            print(appliance_id)
-
             with sqlite3.connect("database.db") as con:
                 cur = con.cursor()
-                print("just before insert")
                 cur.execute("INSERT INTO Service_Location_Devices (service_location_id) VALUES (?)",(service_location_id,) )
                 con.commit()
-                print('inserted into service location devices table')
                 cur.execute('select MAX(device_id) from Service_Location_Devices where service_location_id = ?',(service_location_id,))
                 row = cur.fetchone()
-                print("cdscsdcsdvdsAAAAAAAAAAAA")
-                print(row)
-                print(row[0])
                 cur.execute("INSERT INTO Device_Appliance_Mapping (device_id, appliance_id) VALUES (?,?)",(row[0], appliance_id,) )
-                print('After insert into dam table')
                 con.commit()
                 msg = "Record successfully added"
             
@@ -439,7 +340,6 @@ def adddevicedb():
             msg = "error in insert operation"
 
         finally:
-            flash("added new entry!")
             return redirect(url_for('dashboard'))
             con.close()
 
@@ -505,9 +405,6 @@ def myprofile(email):
            bg = request.form['bg']
            emailid = request.form['email']
 
-           print(name,addr)
-
-
 
            with sqlite3.connect("database.db") as con:
               cur = con.cursor()
@@ -563,8 +460,6 @@ def contactforblood(emailid):
 @app.route('/notifications',methods=('GET','POST'))
 def notifications():
     if request.method == 'GET':
-
-
             conn = sqlite3.connect('database.db')
             print("Opened database successfully")
             conn.row_factory = sqlite3.Row
@@ -579,17 +474,6 @@ def notifications():
                 return render_template('notifications.html')
             else:
                 return render_template('notifications.html',rows=rows)
-
-
-
-
-
-
-
-
-
-
-
 
 
 @app.route('/deleteuser/<useremail>',methods=('GET', 'POST'))
@@ -623,29 +507,21 @@ def deleteservicelocation(id):
         conn = sqlite3.connect('database.db')
         cur = conn.cursor()
         cur.execute('delete from Service_Locations Where service_location_id=?',(id,))
-        flash('deleted entry:'+id)
         conn.commit()
-        print('del sl')
         cur.execute('delete from Customer_Service_Locations Where service_location_id=?',(id,))
         conn.commit()
-        print('del csl')
         conn.close()
         return redirect(url_for('dashboard'))
 
 @app.route('/deletedevice/<id>',methods=('GET', 'POST'))
 def deletedevice(id):
     if request.method == 'GET':
-        print('inside the dd delete api')
-        print(id)
         conn = sqlite3.connect('database.db')
         cur = conn.cursor()
         cur.execute('delete from Service_Location_Devices Where device_id=?',(id,))
-        flash('deleted entry:'+id)
         conn.commit()
-        print('del dd')
         cur.execute('delete from Device_Appliance_Mapping Where device_id=?',(id,))
         conn.commit()
-        print('del dam')
         conn.close()
         return redirect(url_for('dashboard'))
 
