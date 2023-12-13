@@ -15,7 +15,16 @@
     {%endfor%}
 {%endif%}
 {% endwith %}
+  
 <style>
+  .chart {
+    margin: auto;
+    width: 400px;
+  }
+  .chartContainer {
+    display: flex;
+  }
+
   .table-container {
       margin: 200px; /* Add margin to create space around the table */
       border: 1px solid #ddd; /* Add a border around the table */
@@ -75,7 +84,6 @@
         color: white; /* Set text color for the delete button */
     }
 </style>
-
 
      {% if session['logged_in'] == True %}
 

@@ -1,0 +1,340 @@
+<!doctype html>
+{% extends "base.html" %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{%if messages%}
+    {%for mess in messages%}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+<strong>{{mess}}</strong>
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+</div>
+
+    {%endfor%}
+{%endif%}
+{% endwith %}
+
+
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Chart Example</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          // Fetch data from Flask route
+          fetch('/get_weekly_data')
+              .then(response => response.json())
+              .then(data => {
+                  // Data received, create the bar chart
+                  createBarChart(data);
+              });
+  
+          // Function to create the bar chart
+          function createBarChart(data) {
+              var ctx = document.getElementById('myBarChart').getContext('2d');
+              var myBarChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: data.labels,
+                      datasets: [{
+                          label: 'Last 7 days',
+                          data: data.values,
+                          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 1
+                      }]
+                  },
+                  options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Energy Consumed'
+                            }
+                        }
+                    }
+                }
+              });
+          }
+      });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+            // Fetch data from Flask route
+            fetch('/get_monthly_data')
+                .then(response => response.json())
+                .then(data => {
+                    // Data received, create the line chart
+                    createLineChart(data);
+                });
+
+            // Function to create the line chart
+            function createLineChart(data) {
+                var ctx = document.getElementById('myLineChart').getContext('2d');
+                var myLineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Last 4 months',
+                            data: data.values,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Day'
+                                }
+                            }],
+                            y: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Values'
+                                },
+                                beginAtZero: true
+                            }]
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Last 4 months'
+                            }
+                        }
+                    }
+                });
+            }
+        });
+</script>
+  <script>
+    function fetchDeviceDayData() {
+    return fetch('/get_device_day_data')
+        .then(response => response.json())
+        .then(data => data)
+        .catch(error => {
+            console.error('Error fetching weekly data:', error);
+            throw error;
+        });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Fetch data from the function
+    fetchDeviceDayData()
+        .then(data => {
+            // Data received, create the pie chart
+            createPieChart(data);
+        });
+    
+    // Function to create the pie chart
+    function createPieChart(data) {
+        // Define pastel colors
+        var pastelColors = [
+            'rgba(255, 204, 204, 1)',
+            'rgba(255, 229, 204, 1)',
+            'rgba(204, 255, 204, 1)',
+            'rgba(204, 204, 255, 1)',
+            'rgba(255, 204, 255, 1)',
+        ];
+
+        var ctx = document.getElementById('myPieChart').getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.values,
+                    backgroundColor: pastelColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true, // Make the chart responsive
+                maintainAspectRatio: false, 
+                plugins: {
+                            title: {
+                                display: true,
+                                text: 'Last 24 hours'
+                            }
+                        }
+        }
+        });
+    }
+
+});
+    </script>
+  <br>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+            // Fetch data from Flask route or provide your own data
+            fetch('/get_grouped_bar_data')  // Adjust the route based on your backend
+                .then(response => response.json())
+                .then(data => {
+                    // Data received, create the grouped bar chart
+                    createGroupedBarChart(data);
+                });
+        });
+
+        // Function to create the grouped bar chart
+        function createGroupedBarChart(data) {
+            var ctx = document.getElementById('myGroupedBarChart').getContext('2d');
+            var myGroupedBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: data.datasets
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'category', // specify that the x-axis is of type 'category' for string values
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Price'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Energy prices for the last 7 days'
+                        }
+                    }
+                    // Additional options if needed
+                }
+            });
+        }
+
+</script>
+</script>
+  
+<style>
+  .chart {
+    margin: auto;
+    width: 800px;
+  }
+  .chartContainer {
+    display: flex;
+  }
+
+  .table-container {
+      margin: 200px; /* Add margin to create space around the table */
+      border: 1px solid #ddd; /* Add a border around the table */
+      border-radius: 8px; /* Optional: Add border-radius for rounded corners */
+      overflow: auto; /* Optional: Add overflow to enable scrolling if the content is too wide */
+  }
+
+  .table {
+      width: 100%; /* Make the table take 100% width of its container */
+      border-collapse: collapse; /* Collapse the borders for a cleaner look */
+  }
+
+  .table th, .table td {
+      padding: 10px; /* Add padding to cells for spacing */
+      border: 1px solid #ddd; /* Add border to cells */
+      text-align: left; /* Adjust text alignment if needed */
+  }
+
+  .table th {
+      background-color: #f2f2f2; /* Optional: Add background color to header cells */
+  }
+
+  .btn-danger {
+      /* Add styles for your delete button if needed */
+  }
+
+  .breadcrumb {
+        background-color: transparent; /* Remove the default background color */
+    }
+
+    .breadcrumb .breadcrumb-item.active {
+        color: black; /* Change the color of the active item */
+        font-size: 25px; /* Set the font size to 18 pixels */
+        font-weight: bold; /* Set the font weight to bold */
+    }
+
+    .card {
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle box shadow */
+    }
+
+    .card-header {
+        background-color: transparent; /* Set a transparent background color for the card header */
+        border: none; /* Remove the border for the card header */
+        color: #050506; /* Set text color for the card header */
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .btn-danger {
+        background-color: #dc3545; /* Set background color for the delete button */
+        border-color: #dc3545; /* Set border color for the delete button */
+        color: white; /* Set text color for the delete button */
+    }
+</style>
+
+    <div class="chartContainer">
+      <div class="chart">
+        <canvas id="myBarChart"></canvas>
+      </div>
+      <div class="chart">
+        <canvas id="myPieChart"></canvas>
+      </div>
+    </div>
+
+    <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+    <div class="chartContainer">
+        <div class="chart">
+          <canvas id="myGroupedBarChart"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="myLineChart"></canvas>
+          </div>
+      </div>
+
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+     {% if session['logged_in'] == True %}
+
+     {%else%}
+
+     {%endif%}
+
+{% endblock %}

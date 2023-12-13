@@ -1,12 +1,14 @@
 from flask import render_template
 import sqlite3
-# import requests
 from flask import Flask
 from flask import request,redirect,url_for,session,flash
+from flask.json import jsonify
 from flask_wtf import Form
 from wtforms import TextField
 app = Flask(__name__)
 app.secret_key = "super secret key"
+from datetime import datetime,timedelta
+from collections import defaultdict
 
 @app.route('/')
 def hel():
@@ -54,7 +56,6 @@ def addrec():
              msg = "Record successfully added"
 
 
-
       except:
              con.rollback()
              msg = "error in insert operation"
@@ -65,13 +66,8 @@ def addrec():
              con.close()
 
 
-
-
-
 @app.route('/index',methods = ['POST','GET'])
 def index():
-
-
 
     if request.method == 'POST':
         if session.get('username') is not None:
@@ -80,11 +76,8 @@ def index():
         else:
             messages = ""
         user = {'username': messages}
-        print(messages)
         val = request.form['search']
-        print(val)
         type = request.form['type']
-        print(type)
         if type=='blood':
             con = sqlite3.connect('database.db')
             con.row_factory = sqlite3.Row
@@ -121,7 +114,6 @@ def index():
     else:
         messages = ""
     user = {'username': messages}
-    print(messages)
     if request.method=='GET':
         con = sqlite3.connect('database.db')
         con.row_factory = sqlite3.Row
@@ -142,7 +134,6 @@ def list():
    cur.execute("select * from users")
 
    rows = cur.fetchall();
-   print(rows)
    return render_template("list.html",rows = rows)
 
 @app.route('/drop')
@@ -156,7 +147,6 @@ def login():
     if request.method == 'GET':
         return render_template('/login.html')
     if request.method == 'POST':
-        print(session)
         email = request.form['email']
         password = request.form['pass']
         # if email == 'admin@bloodbank.com' and password == 'admin':       
@@ -165,7 +155,7 @@ def login():
         #session['logged_in'] = True
         session['admin'] = True
         # return redirect(url_for('index'))
-        print((password,email))
+
         con = sqlite3.connect('database.db')
         con.row_factory = sqlite3.Row
 
@@ -173,16 +163,12 @@ def login():
         cur.execute("select email,pass,cid from users where email=?",(email,))
         rows = cur.fetchall();
         for row in rows:
-            print(row['email'],row['pass'])
             a = row['email']
             session['username'] = a
             session['logged_in'] = True
             session['cid']=row['cid']
-            print(a)
             u = {'username': a}
             p = row['pass']
-            print(p)
-            print(session)
             if email == a and password == p:
                 return redirect(url_for('index'))
             else:
@@ -219,7 +205,6 @@ def dashboard():
    for row in rows3:
     appliance_dictionary[row[0]]=row[1]
 
-   print(appliance_dictionary)
 
    cur.execute("select * from Service_Locations join Customer_Service_Locations on Service_Locations.service_location_id=Customer_Service_Locations.service_location_id where cid=?",(session['cid'],))
 
@@ -227,24 +212,144 @@ def dashboard():
 
    cur.execute("select Service_Location_Devices.device_id, Service_Locations.street_number, Service_Locations.street_name, Service_Locations.apt_number, Service_Locations.city, Service_Locations.zipcode, Appliance_Information.appliance_type, Appliance_Information.model from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Device_Appliance_Mapping on Service_Location_Devices.device_id = Device_Appliance_Mapping.device_id join Appliance_Information on Appliance_Information.appliance_id = Device_Appliance_Mapping.appliance_id where cid=?",(session['cid'],))
 
-   rows2 = cur.fetchall();
+   rows2 = cur.fetchall()
 
-   return render_template("requestdonors.html",rows1=rows1, rows2=rows2, appliance_dictionary= appliance_dictionary)
+   data = {
+        'labels': ['Category 1', 'Category 2', 'Category 3', 'Category 4'],
+        'values': [20, 35, 25, 40]
+    }
+
+   return render_template("requestdonors.html",rows1=rows1, rows2=rows2, appliance_dictionary=appliance_dictionary, data=data)
+
+@app.route('/get_weekly_data')
+def get_weekly_data():
+    con = sqlite3.connect('database.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    today = datetime.now().date()
+    last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    formatted_dates = [date.strftime('%m-%d-%Y') for date in last_7_days]
+    date_dict = {key: 0 for key in formatted_dates}
+    cur.execute("select consumption_time,energy_consumed from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Energy_Consumption on Service_Location_Devices.device_id=Energy_Consumption.device_id where cid=?",(session['cid'],))
+    rows=cur.fetchall()
+    for row in rows:
+        ctime=row[0].split(' ')
+        date=ctime[0]
+        if date in date_dict:
+            date_dict[date]+=row[1]
+    arr=date_dict.items()
+    labels=[]
+    values=[]
+    for item in arr:
+        labels.append(item[0])
+        values.append(item[1])
+    data = {
+        'labels': labels,
+        'values': values
+    }
+    return jsonify(data)
+
+@app.route('/get_monthly_data')
+def get_monthly_data():
+    con = sqlite3.connect('database.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    months=['09','10','11','12']
+    date_dict = {key: 0 for key in months}
+    cur.execute("select consumption_time,energy_consumed from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Energy_Consumption on Service_Location_Devices.device_id=Energy_Consumption.device_id where cid=?",(session['cid'],))
+    rows=cur.fetchall()
+    for row in rows:
+        ctime=row[0].split(' ')
+        date=ctime[0]
+        temp=date.split('-')
+        month=temp[0]
+        if month in date_dict:
+            date_dict[month]+=row[1]
+    arr=date_dict.items()
+    values=[]
+    for item in arr:
+        values.append(item[1])
+    data = {
+        'labels': ['Sept', 'Oct', 'Nov', 'Dec'],
+        'values': values
+    }
+    return jsonify(data)
+
+
+@app.route('/get_device_day_data')
+def get_device_day_data():
+    con = sqlite3.connect('database.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    device_dict={'Fridge':0, 'Lights':0, 'AC':0}
+    today = datetime.now().date().strftime('%m-%d-%Y')
+    cur.execute("select consumption_time,appliance_type, SUM(energy_consumed) from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id join Energy_Consumption on Service_Location_Devices.device_id=Energy_Consumption.device_id join Device_Appliance_Mapping on Device_Appliance_Mapping.device_id= Service_Location_Devices.device_id join  Appliance_Information on Appliance_Information.appliance_id=Device_Appliance_Mapping.appliance_id where cid=? GROUP BY appliance_type,consumption_time",(session['cid'],))
+    rows=cur.fetchall()
+    for row in rows:
+        ctime=row[0].split(' ')
+        date=ctime[0]
+        if date==today:
+            device_dict[row[1]]+=row[2]
+    arr=device_dict.items()
+    labels=[]
+    values=[]
+    for item in arr:
+        labels.append(item[0])
+        values.append(item[1])
+    data = {
+        'labels': labels,
+        'values': values
+    }
+    return jsonify(data)
+
+@app.route('/get_grouped_bar_data')
+def get_grouped_bar_data():
+    con = sqlite3.connect('database.db')
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    today = datetime.now().date()
+    last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    formatted_dates = [date.strftime('%m-%d-%Y') for date in last_7_days]
+    cur.execute("select price_change_time,zipcode,unit_cost FROM Energy_Price WHERE zipcode IN (select zipcode from Service_Location_Devices join Customer_Service_Locations on Service_Location_Devices.service_location_id=Customer_Service_Locations.service_location_id join Service_Locations on Service_Locations.service_location_id = Customer_Service_Locations.service_location_id  where cid=?) ORDER BY zipcode, price_change_time",(session['cid'],))
+    rows=cur.fetchall()
+    temp_dict=defaultdict(list)
+    for row in rows:
+        if row[1] not in temp_dict:
+            temp_dict[row[1]]=[]
+        temp_dict[row[1]].append(row[2])
+
+    colors = ["rgba(255, 99, 132, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(255, 206, 86, 0.2)", "rgba(75, 192, 192, 0.2)"]
+
+    datasets = []
+
+    for i, (label, values) in enumerate(temp_dict.items()):
+        color_index = i % len(colors)
+        group_data = {
+            "label": f"{label}",
+            "data": values,
+            "backgroundColor": colors[color_index],
+            "borderColor": colors[color_index].replace("0.2", "1"),
+            "borderWidth": 1
+        }
+        datasets.append(group_data)
+  
+    data = {
+        "labels": formatted_dates,
+        "datasets": datasets
+    }
+    return jsonify(data)
 
 
 @app.route('/bloodbank')
 def bl():
-    print(session)
     conn = sqlite3.connect('database.db')
-    print("Opened database successfully")
     conn.execute('CREATE TABLE IF NOT EXISTS blood (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, donorname TEXT, donorsex TEXT, qty TEXT, dweight TEXT, donoremail TEXT, phone TEXT)')
     print( "Table created successfully")
     conn.close()
-    return render_template('/adddonor.html')
+    return render_template('/addservicelocation.html')
 
 @app.route('/device')
 def adddevice():
-    print(session)
     conn = sqlite3.connect('database.db')
     print("Opened database successfully")
     conn.execute('CREATE TABLE IF NOT EXISTS Service_Location_Devices (device_id INTEGER, service_location_id	INTEGER NOT NULL, PRIMARY KEY(device_id), FOREIGN KEY(service_location_id) REFERENCES Service_Locations(service_location_id))')
@@ -272,11 +377,14 @@ def adddevice():
     conn.close()
     return render_template('/adddevice.html',rows=arr, rows1=arr1)
 
+@app.route('/insights')
+def insights():
+    return render_template('/insights.html')
+
 
 @app.route('/addb',methods =['POST','GET'])
 def addb():
     msg = ""
-    print(session)
     if request.method == 'POST':
         try:
             street_number = request.form['street_number']
@@ -314,7 +422,6 @@ def addb():
 @app.route('/adddevicedb',methods =['POST','GET'])
 def adddevicedb():
     msg = ""
-    print(session)
     if request.method == 'POST':
         try:
             form_data = request.form  
@@ -346,166 +453,13 @@ def adddevicedb():
     else:
         return render_template("rest.html",msg=msg)
 
-@app.route("/editdonor/<id>", methods=('GET', 'POST'))
-def editdonor(id):
-    msg =""
-    if request.method == 'GET':
-        con = sqlite3.connect('database.db')
-        con.row_factory = sqlite3.Row
-
-        cur = con.cursor()
-        cur.execute("select * from blood where id=?",(id,))
-        rows = cur.fetchall();
-        return render_template("editdonor.html",rows = rows)
-    if request.method == 'POST':
-        try:
-           type = request.form['blood_group']
-           donorname = request.form['donorname']
-           donorsex = request.form['gender']
-           qty = request.form['qty']
-           dweight = request.form['dweight']
-           email = request.form['email']
-           phone = request.form['phone']
-
-
-
-           with sqlite3.connect("database.db") as con:
-              cur = con.cursor()
-              cur.execute("UPDATE blood SET type = ?, donorname = ?, donorsex = ?, qty = ?,dweight = ?, donoremail = ?,phone = ? WHERE id = ?",(type,donorname,donorsex,qty,dweight,email,phone,id) )
-              con.commit()
-              msg = "Record successfully updated"
-        except:
-           con.rollback()
-           msg = "error in insert operation"
-
-        finally:
-            flash('saved successfully')
-            return redirect(url_for('dashboard'))
-            con.close()
-
-@app.route("/myprofile/<email>", methods=('GET', 'POST'))
-def myprofile(email):
-    msg =""
-    if request.method == 'GET':
-
-
-        con = sqlite3.connect('database.db')
-        con.row_factory = sqlite3.Row
-
-        cur = con.cursor()
-        cur.execute("select * from users where email=?",(email,))
-        rows = cur.fetchall();
-        return render_template("myprofile.html",rows = rows)
-    if request.method == 'POST':
-        try:
-           name = request.form['name']
-           addr = request.form['addr']
-           city = request.form['city']
-           pin = request.form['pin']
-           bg = request.form['bg']
-           emailid = request.form['email']
-
-
-           with sqlite3.connect("database.db") as con:
-              cur = con.cursor()
-              cur.execute("UPDATE users SET name = ?, addr = ?, city = ?, pin = ?,bg = ?, email = ? WHERE email = ?",(name,addr,city,pin,bg,emailid,email) )
-              con.commit()
-              msg = "Record successfully updated"
-        except:
-           con.rollback()
-           msg = "error in insert operation"
-
-        finally:
-           flash('profile saved')
-           return redirect(url_for('index'))
-           con.close()
-
-
-
-@app.route('/contactforblood/<emailid>', methods=('GET', 'POST'))
-def contactforblood(emailid):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        print("Opened database successfully")
-        conn.execute('CREATE TABLE IF NOT EXISTS request (id INTEGER PRIMARY KEY AUTOINCREMENT, toemail TEXT, formemail TEXT, toname TEXT, toaddr TEXT)')
-        print( "Table created successfully")
-        fromemail = session['username']
-        name = request.form['nm']
-        addr = request.form['add']
-
-        print(fromemail,emailid)
-        conn.execute("INSERT INTO request (toemail,formemail,toname,toaddr) VALUES (?,?,?,?)",(emailid,fromemail,name,addr) )
-        conn.commit()
-        conn.close()
-        flash('request sent')
-        return redirect(url_for('index'))
-    if request.method == 'POST':
-        conn = sqlite3.connect('database.db')
-        print("Opened database successfully")
-        conn.execute('CREATE TABLE IF NOT EXISTS request (id INTEGER PRIMARY KEY AUTOINCREMENT, toemail TEXT, formemail TEXT, toname TEXT, toaddr TEXT)')
-        print( "Table created successfully")
-        fromemail = session['username']
-        name = request.form['nm']
-        addr = request.form['add']
-
-        print(fromemail,emailid)
-        conn.execute("INSERT INTO request (toemail,formemail,toname,toaddr) VALUES (?,?,?,?)",(emailid,fromemail,name,addr) )
-        conn.commit()
-        conn.close()
-        flash('request sent')
-        return redirect(url_for('index'))
-
-
-
-@app.route('/notifications',methods=('GET','POST'))
-def notifications():
-    if request.method == 'GET':
-            conn = sqlite3.connect('database.db')
-            print("Opened database successfully")
-            conn.row_factory = sqlite3.Row
-
-            cur = conn.cursor()
-            cor = conn.cursor()
-            cur.execute('select * from request where toemail=?',(session['username'],))
-            cor.execute('select * from request where toemail=?',(session['username'],))
-            row = cor.fetchone();
-            rows = cur.fetchall();
-            if row==None:
-                return render_template('notifications.html')
-            else:
-                return render_template('notifications.html',rows=rows)
-
-
-@app.route('/deleteuser/<useremail>',methods=('GET', 'POST'))
-def deleteuser(useremail):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        cur = conn.cursor()
-        cur.execute('delete from users Where email=?',(useremail,))
-        flash('deleted user:'+useremail)
-        conn.commit()
-        conn.close()
-        return redirect(url_for('dashboard'))
-
-
-@app.route('/deletebloodentry/<id>',methods=('GET', 'POST'))
-def deletebloodentry(id):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        cur = conn.cursor()
-        cur.execute('delete from blood Where id=?',(id,))
-        flash('deleted entry:'+id)
-        conn.commit()
-        conn.close()
-        return redirect(url_for('dashboard'))
-
 @app.route('/deleteservicelocation/<id>',methods=('GET', 'POST'))
 def deleteservicelocation(id):
     if request.method == 'GET':
-        print('inside the sl delete api')
-        print(id)
         conn = sqlite3.connect('database.db')
         cur = conn.cursor()
+        cur.execute('delete from Service_Location_Devices Where service_location_id=?',(id,))
+        conn.commit()
         cur.execute('delete from Service_Locations Where service_location_id=?',(id,))
         conn.commit()
         cur.execute('delete from Customer_Service_Locations Where service_location_id=?',(id,))
@@ -524,31 +478,6 @@ def deletedevice(id):
         conn.commit()
         conn.close()
         return redirect(url_for('dashboard'))
-
-@app.route('/deleteme/<useremail>',methods=('GET', 'POST'))
-def deleteme(useremail):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        cur = conn.cursor()
-        cur.execute('delete from users Where email=?',(useremail,))
-        flash('deleted user:'+useremail)
-        conn.commit()
-        conn.close()
-        session.pop('username', None)
-        session.pop('logged_in',None)
-        return redirect(url_for('index'))
-
-@app.route('/deletenoti/<id>',methods=('GET', 'POST'))
-def deletenoti(id):
-    if request.method == 'GET':
-        conn = sqlite3.connect('database.db')
-        cur = conn.cursor()
-        cur.execute('delete from request Where id=?',(id,))
-        flash('deleted notification:'+id)
-        conn.commit()
-        conn.close()
-        return redirect(url_for('notifications'))
-
 
 
 if __name__ == '__main__':
