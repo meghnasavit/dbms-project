@@ -219,7 +219,7 @@ def dashboard():
         'values': [20, 35, 25, 40]
     }
 
-   return render_template("requestdonors.html",rows1=rows1, rows2=rows2, appliance_dictionary=appliance_dictionary, data=data)
+   return render_template("dashboard.html",rows1=rows1, rows2=rows2, appliance_dictionary=appliance_dictionary, data=data)
 
 @app.route('/get_weekly_data')
 def get_weekly_data():

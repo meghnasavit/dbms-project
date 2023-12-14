@@ -5,28 +5,28 @@
 
   {% with messages = get_flashed_messages() %}
   {%if messages%}
-      {%for mess in messages%}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-  <strong>{{mess}}</strong>
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
+  {%for mess in messages%}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>{{mess}}</strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 
-      {%endfor%}
+  {%endfor%}
   {%endif%}
   {% endwith %}
 
-<div class="card text-left mt-5" style="width: 35rem;">
-  <div class="card-body">
-      <form action = "{{url_for('adddevicedb')}}" method = "POST">
-         <h3>Device Information</h3>
-         <label for="option">Service Locations</label>
-         <br>
+  <div class="card text-left mt-5" style="width: 35rem;">
+    <div class="card-body">
+      <form action="{{url_for('adddevicedb')}}" method="POST">
+        <h3>Device Information</h3>
+        <label for="option">Service Locations</label>
+        <br>
         <select id="option" name="service_location_id">
-            {% for id, value in rows.items() %}
-            <option value="{{ id }}">{{ value }}</option>
-        {% endfor %}
+          {% for id, value in rows.items() %}
+          <option value="{{ id }}">{{ value }}</option>
+          {% endfor %}
         </select>
         <br>
         <br>
@@ -34,9 +34,9 @@
         <label for="option">Appliance </label>
         <br>
         <select id="option" name="appliance_id">
-            {% for id, value in rows1.items() %}
-            <option value="{{ id }}">{{ value }}</option>
-        {% endfor %}
+          {% for id, value in rows1.items() %}
+          <option value="{{ id }}">{{ value }}</option>
+          {% endfor %}
         </select>
 
         <br>
@@ -48,4 +48,4 @@
     </div>
   </div>
 </center>
-     {% endblock %}
+{% endblock %}
