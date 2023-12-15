@@ -1,61 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/meghnasavit/Downloads/Blood-Bank/database.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2067"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,21:mainAppliance_Information"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-13-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-13-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-13-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-13-2023 09:00:00',6);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-13-2023 09:00:00',3);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-13-2023 09:00:00',5);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-13-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'09-13-2023 09:00:00',8);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-12-2023 09:00:00',8);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-12-2023 09:00:00',3);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-12-2023 09:00:00',6);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-12-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-12-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-12-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-12-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'09-12-2023 09:00:00',5);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-11-2023 09:00:00',5);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-11-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-11-2023 09:00:00',8);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-11-2023 09:00:00',6);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-11-2023 09:00:00',3);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-11-2023 09:00:00',5);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-11-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'09-11-2023 09:00:00',9);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-10-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-10-2023 09:00:00',8);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-10-2023 09:00:00',3);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-10-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-10-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-10-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-10-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'09-10-2023 09:00:00',6);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-09-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-09-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-09-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-09-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-09-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-09-2023 09:00:00',6);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-09-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'09-09-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-08-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-08-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-08-2023 09:00:00',5);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-08-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-08-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-08-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-08-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'09-08-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'09-07-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'09-07-2023 09:00:00',2);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'09-07-2023 09:00:00',5);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'09-07-2023 09:00:00',1);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'09-07-2023 09:00:00',4);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'09-07-2023 09:00:00',7);
-INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'09-07-2023 09:00:00',1);
-
-
-
-
-
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/meghnasavit/Downloads/Blood-Bank/database.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2067"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,21:mainAppliance_Information"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (7,'12-15-2023 09:00:00',2);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (8,'12-15-2023 09:00:00',3);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (9,'12-15-2023 09:00:00',7);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (11,'12-15-2023 09:00:00',3);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (12,'12-15-2023 09:00:00',2);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (13,'12-15-2023 09:00:00',1);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (14,'12-15-2023 09:00:00',8);
+INSERT INTO Energy_Consumption(device_id,consumption_time,energy_consumed) VALUES (15,'12-15-2023 09:00:00',9);
 </sql><current_tab id="0"/></tab_sql></sqlb_project>
